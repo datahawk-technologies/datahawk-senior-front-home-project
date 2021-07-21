@@ -2,8 +2,9 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { ProductRank } from '../../../../models/product-rank.type';
 import { ChartDataSets, ChartOptions } from 'chart.js';
 import { Label } from 'ng2-charts';
-import * as moment from 'moment';
 import { Product } from '../../../../models/product.interface';
+import { getMomentUsableDate } from '../../../../state/app.state';
+import { RankViewerDatepickerComponent } from '../rank-viewer-datepicker/rank-viewer-datepicker.component';
 
 @Component({
   selector: 'dh-rank-viewer-chart',
@@ -37,7 +38,7 @@ export class RankViewerChartComponent implements OnInit, OnChanges {
     const dates: string[] = Array.from(new Set(this.selectedDataset?.map((r: ProductRank) => r.date)));
 
     return dates
-        .map((d) => moment(d, 'MM/DD/YYYY').utc(true))
+        .map((d) => getMomentUsableDate(d))
         .sort((a, b) => a.isAfter(b) ? 1 : -1)
         .map((d) => d.toISOString());
   }
@@ -76,8 +77,7 @@ export class RankViewerChartComponent implements OnInit, OnChanges {
   }
 
   private getProductRankByDay(product: Product, date: string): ProductRank | null {
-    const formattedDate: string = moment(date).utc(true).format('MM/DD/YYYY');
-
+    const formattedDate: string = RankViewerDatepickerComponent.getMomentDateToHumanReadable(date);
     return this.selectedDataset?.find((p) => p.ASIN === product.ASIN && p.date === formattedDate) ?? null;
   }
 }

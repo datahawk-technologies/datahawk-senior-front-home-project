@@ -1,2 +1,13 @@
-<dh-rank-viewer-filters [datasetIds]="datasetIds" [selectedId]="(selectedDatasetId$ | async)" (datasetSelect)="onDatasetSelection($event)"></dh-rank-viewer-filters>
-<dh-rank-viewer-chart [chartOptions]="chartsOptions" [selectedDataset]="(selectedDataset$ | async)"></dh-rank-viewer-chart>
+<dh-rank-viewer-filters
+    [selectedBegin]="(selectedBeginDate$ | async)"
+    [selectedEnd]="(selectedEndDate$ | async)"
+    [datasetIds]="datasetIds"
+    [selectedId]="(selectedDatasetId$ | async)"
+    (datasetSelect)="onDatasetSelection($event)"
+    (beginChange)="onBeginSelection($event)"
+    (endChange)="onEndSelection($event)"
+></dh-rank-viewer-filters>
+<dh-rank-viewer-chart
+    [chartOptions]="chartsOptions"
+    [selectedDataset]="(selectedDataset$ | async)"
+></dh-rank-viewer-chart>

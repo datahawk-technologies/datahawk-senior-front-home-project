@@ -7,6 +7,7 @@ import {ProductRank} from '../../models/product-rank.type';
 import {ChartOptions} from 'chart.js';
 import {DatasetId} from '../../models/dataset-id.enum';
 import {AppActions} from '../../state/app.actions';
+import {Moment} from 'moment';
 
 @Component({
   selector: 'dh-rank-viewer',
@@ -18,6 +19,8 @@ export class RankViewerComponent implements OnInit {
   // setting "!" after attribut declaration tell to typescript that we wont init that property
   @Select(AppState.selectedDataset) selectedDataset$!: Observable<ProductRank[]>;
   @Select(AppState.selectedDatasetId) selectedDatasetId$!: Observable<DatasetId>;
+  @Select(AppState.selectedBeginDate) selectedBeginDate$!: Observable<Moment>;
+  @Select(AppState.selectedEndDate) selectedEndDate$!: Observable<Moment>;
 
   chartsOptions: ChartOptions = CHART_OPTIONS;
   datasetIds: DatasetId[] = Object.values(DatasetId);
@@ -29,6 +32,14 @@ export class RankViewerComponent implements OnInit {
 
   onDatasetSelection(datasetId: DatasetId) {
     this.store.dispatch(new AppActions.SelectDataset(datasetId));
+  }
+
+  onBeginSelection(begin: Moment) {
+    this.store.dispatch(new AppActions.SelectBeginDate(begin));
+  }
+
+  onEndSelection(end: Moment) {
+    this.store.dispatch(new AppActions.SelectEndDate(end));
   }
 
 }

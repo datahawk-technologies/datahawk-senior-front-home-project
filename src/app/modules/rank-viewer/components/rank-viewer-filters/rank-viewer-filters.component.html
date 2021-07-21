@@ -1,4 +1,10 @@
 <div class="filters">
+    <dh-rank-viewer-datepicker
+        [selectedBegin]="selectedBegin"
+        [selectedEnd]="selectedEnd"
+        (beginChange)="onBeginChange($event)"
+        (endChange)="onEndChange($event)"
+    ></dh-rank-viewer-datepicker>
     <div class="dropdown">
         <select class="dropdown-select" #selectList (change)="onDatasetClick(selectList.value)">
             <option *ngFor="let id of datasetIds"
