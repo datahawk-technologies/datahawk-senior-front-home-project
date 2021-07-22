@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DatasetId } from '../../../../models/dataset-id.enum';
+import {Moment} from 'moment';
 
 @Component({
   selector: 'dh-rank-viewer-filters',
@@ -13,13 +14,10 @@ export class RankViewerFiltersComponent implements OnInit {
 
   @Output() datasetSelect: EventEmitter<DatasetId> = new EventEmitter<DatasetId>();
 
-  constructor() { }
-
   ngOnInit(): void {
   }
 
   onDatasetClick(datasetId: string) {
     this.datasetSelect.emit(datasetId as DatasetId);
   }
-
 }

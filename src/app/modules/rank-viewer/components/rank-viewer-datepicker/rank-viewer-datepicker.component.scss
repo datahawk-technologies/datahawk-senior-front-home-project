@@ -1,0 +1,11 @@
+.datepicker-component {
+  height: 100%;
+  padding-right: 1rem;
+  width: 160px;
+  input[name='dh-datepicker-input'] {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+  }
+}

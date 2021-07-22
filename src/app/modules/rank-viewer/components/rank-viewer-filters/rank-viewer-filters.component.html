@@ -1,11 +1,9 @@
-<div class="filters">
-    <div class="dropdown">
-        <select class="dropdown-select" #selectList (change)="onDatasetClick(selectList.value)">
-            <option *ngFor="let id of datasetIds"
-                    [value]="id"
-                    [selected]="selectedId === id">
-                {{ id.toUpperCase() }}
-            </option>
-        </select>
-    </div>
+<div class="dropdown">
+    <select class="dropdown-select" #selectList (change)="onDatasetClick(selectList.value)">
+        <option *ngFor="let id of datasetIds"
+                [value]="id"
+                [selected]="selectedId === id">
+            {{ id.toUpperCase() }}
+        </option>
+    </select>
 </div>
