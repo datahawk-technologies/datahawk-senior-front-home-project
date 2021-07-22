@@ -7,19 +7,23 @@ import { RankViewerComponent } from './rank-viewer.component';
 import { ChartsModule } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 import {RankViewerDatepickerComponent} from './components/rank-viewer-datepicker/rank-viewer-datepicker.component';
+import {RankViewerProductsSelectionComponent} from './components/rank-viewer-products-selection/rank-viewer-products-selection.component';
+import {NgMultiSelectDropDownModule} from 'ng-multiselect-dropdown';
 
 @NgModule({
     declarations: [
         RankViewerComponent,
         RankViewerFiltersComponent,
         RankViewerChartComponent,
-        RankViewerDatepickerComponent
+        RankViewerDatepickerComponent,
+        RankViewerProductsSelectionComponent
     ],
     imports: [
         CommonModule,
         ChartsModule,
         FormsModule,
-        RankViewerRoutingModule
+        RankViewerRoutingModule,
+        NgMultiSelectDropDownModule.forRoot()
     ],
     providers: []
 })

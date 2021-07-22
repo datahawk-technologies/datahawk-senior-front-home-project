@@ -10,16 +10,12 @@ import * as moment from 'moment';
 import {Moment} from 'moment';
 import {patch} from '@ngxs/store/operators';
 
-const initialSelectedDatasetId = DatasetId.BSR_FURNITURE;
-const initialDataSet = FurnitureBSROverTime;
-const initialFirstDate = getFirstDate(initialDataSet);
-const initialLastDate = getFirstDate(initialDataSet, true);
-
-export let mapDatasetIdContentAssociation: any = {};
+export const mapDatasetIdContentAssociation: any = {};
 mapDatasetIdContentAssociation[DatasetId.BSR_FURNITURE] = FurnitureBSROverTime;
 mapDatasetIdContentAssociation[DatasetId.BSR_BEDROOM_FURNITURE] = BedroomFurnitureBSROverTime;
 mapDatasetIdContentAssociation[DatasetId.BSR_MATTRESSES_AND_BOX_SPRINGS] = MattressesAndBoxSpringsBSROverTime;
 
+const initialSelectedDatasetId = DatasetId.BSR_FURNITURE;
 
 /**
  * Transform a string date format to a moment date
@@ -30,27 +26,52 @@ export function getMomentUsableDate(date: string, format: string = 'MM/DD/YYYY')
   return moment(date, format).utc(true);
 }
 
-export function getDataForDateRange(datasetId: DatasetId, beginDate?: Moment, endDate?: Moment): ProductRank[] {
+export function getDataForDateRange(
+    datasetId: DatasetId,
+    beginDate?: Moment,
+    endDate?: Moment,
+    productNamesToDisplay?: MultiselectProductOption[]
+): ProductRank[] {
   const dataset: ProductRank[] = mapDatasetIdContentAssociation[datasetId];
   if (!beginDate) {
-    beginDate = getFirstDate(dataset);
+    beginDate = getBoundaryDate(dataset);
   }
   if (!endDate) {
-    endDate = getFirstDate(dataset, true);
+    endDate = getBoundaryDate(dataset, true);
   }
-  return dataset.filter((p) =>
-      getMomentUsableDate(p.date).isAfter(beginDate) &&
-      getMomentUsableDate(p.date).isBefore(endDate)
+  if (!productNamesToDisplay) {
+    productNamesToDisplay = [];
+    // productNamesToDisplay = dataset.map(d => d.name);;
+  }
+
+  return (
+      dataset.filter(p =>
+          getMomentUsableDate(p.date).isAfter(beginDate) &&
+          getMomentUsableDate(p.date).isBefore(endDate) &&
+          productNamesToDisplay?.some(product => {
+            return product.name.toLowerCase() === p.name.toLowerCase()
+          })
+      )
   );
 }
 
-function getFirstDate(dataset: ProductRank[], lastDate: boolean = false): Moment {
+function getBoundaryDate(dataset: ProductRank[], lastDate: boolean = false): Moment {
   const sortedDataset = dataset.sort((pa, pb) => {
     const pad = getMomentUsableDate(pa.date);
     const pbd = getMomentUsableDate(pb.date);
     return pad.isAfter(pbd) ? 1 : -1;
   });
-  return lastDate ? getMomentUsableDate(sortedDataset[sortedDataset.length - 1].date) : getMomentUsableDate(sortedDataset[0].date);
+  if (!sortedDataset || sortedDataset.length < 1) {
+    return moment();
+  }
+  return lastDate ? getMomentUsableDate(sortedDataset[sortedDataset.length - 1].date) : getMomentUsableDate(sortedDataset[0]?.date);
+}
+
+export function getMultiselectOptionsByDatasetId(dId: DatasetId): MultiselectProductOption[] {
+  return initialAppStateDataset[dId].map(d => ({
+    smallName: d.name.substr(0, Math.min(10, d.name.length)) + '...',
+    name: d.name
+  }));
 }
 
 interface DateRangeModel {
@@ -58,21 +79,36 @@ interface DateRangeModel {
   end: Moment
 }
 
+export interface MultiselectProductOption {
+  smallName: string,
+  name: string
+}
+
 export interface AppStateModel {
+  multiselectProductNamesOptions: MultiselectProductOption[];
   dataset: { [key in DatasetId]: ProductRank[] };
+  productNamesToDisplay: MultiselectProductOption[];
   selectedDatasetId: DatasetId;
   selectedDateRange: DateRangeModel
 }
 
+export const initialAppStateDataset: { [key in DatasetId]: ProductRank[] } = {
+  [DatasetId.BSR_FURNITURE]: mapDatasetIdContentAssociation[DatasetId.BSR_FURNITURE],
+  [DatasetId.BSR_BEDROOM_FURNITURE]: mapDatasetIdContentAssociation[DatasetId.BSR_BEDROOM_FURNITURE],
+  [DatasetId.BSR_MATTRESSES_AND_BOX_SPRINGS]: mapDatasetIdContentAssociation[DatasetId.BSR_MATTRESSES_AND_BOX_SPRINGS],
+};
+
 const defaults: AppStateModel = {
+  multiselectProductNamesOptions: getMultiselectOptionsByDatasetId(initialSelectedDatasetId),
   dataset: {
     [DatasetId.BSR_FURNITURE]: getDataForDateRange(DatasetId.BSR_FURNITURE),
     [DatasetId.BSR_BEDROOM_FURNITURE]: getDataForDateRange(DatasetId.BSR_BEDROOM_FURNITURE),
     [DatasetId.BSR_MATTRESSES_AND_BOX_SPRINGS]: getDataForDateRange(DatasetId.BSR_MATTRESSES_AND_BOX_SPRINGS),
   },
+  productNamesToDisplay: [],
   selectedDateRange: {
-    begin: initialFirstDate,
-    end: initialLastDate
+    begin: getBoundaryDate(mapDatasetIdContentAssociation[initialSelectedDatasetId]),
+    end: getBoundaryDate(mapDatasetIdContentAssociation[initialSelectedDatasetId], true),
   },
   selectedDatasetId: initialSelectedDatasetId
 }
@@ -84,6 +120,11 @@ const defaults: AppStateModel = {
 @Injectable()
 export class AppState {
   constructor() {
+  }
+
+  @Selector()
+  public static selectedMultiselectProductOptions(state: AppStateModel): MultiselectProductOption[] {
+    return state.multiselectProductNamesOptions;
   }
 
   @Selector()
@@ -102,13 +143,26 @@ export class AppState {
   }
 
   @Selector()
+  public static allProductNames(state: AppStateModel): MultiselectProductOption[] {
+    return state.productNamesToDisplay;
+  }
+
+  @Selector()
+  public static selectedProductNames(state: AppStateModel): MultiselectProductOption[] {
+    return state.productNamesToDisplay;
+  }
+
+  @Selector()
   public static selectedEndDate(state: AppStateModel): Moment {
     return state.selectedDateRange.end;
   }
 
   @Action(AppActions.SelectDataset)
   selectDataset({ patchState }: StateContext<AppStateModel>, { datasetId }: AppActions.SelectDataset) {
-    patchState({ selectedDatasetId: datasetId });
+    patchState({
+      selectedDatasetId: datasetId,
+      multiselectProductNamesOptions: getMultiselectOptionsByDatasetId(datasetId)
+    });
   }
 
   @Action(AppActions.SelectBeginDate)
@@ -118,7 +172,8 @@ export class AppState {
     newDataSet[state.selectedDatasetId] = getDataForDateRange(
         state.selectedDatasetId,
         beginDate,
-        state.selectedDateRange.end
+        state.selectedDateRange.end,
+        state.productNamesToDisplay
     );
     ctx.setState(
         patch({
@@ -130,6 +185,24 @@ export class AppState {
     );
   }
 
+  @Action(AppActions.SelectProductNamesToDisplay)
+  selectProductNamesToDisplay(ctx: StateContext<AppStateModel>, { productNamesToDisplay }: AppActions.SelectProductNamesToDisplay) {
+    const state = ctx.getState();
+    const newDataSet = {...state.dataset};
+    newDataSet[state.selectedDatasetId] = getDataForDateRange(
+        state.selectedDatasetId,
+        state.selectedDateRange.begin,
+        state.selectedDateRange.end,
+        productNamesToDisplay
+    );
+    ctx.setState(
+        patch({
+          dataset: newDataSet,
+          productNamesToDisplay: productNamesToDisplay
+        })
+    );
+  }
+
   @Action(AppActions.SelectEndDate)
   selectEndDate(ctx: StateContext<AppStateModel>, { endDate }: AppActions.SelectEndDate) {
     const state = ctx.getState();
@@ -137,7 +210,8 @@ export class AppState {
     newDataSet[state.selectedDatasetId] = getDataForDateRange(
         state.selectedDatasetId,
         state.selectedDateRange.begin,
-        endDate
+        endDate,
+        state.productNamesToDisplay
     );
     ctx.setState(
         patch({
@@ -149,4 +223,5 @@ export class AppState {
         })
     );
   }
+
 }

@@ -1,0 +1,11 @@
+<div class="product-selections-component">
+    <ng-multiselect-dropdown
+        *ngIf="selectedId"
+        [settings]="dropdownSettings"
+        [data]="multiselectProductNamesOptions"
+        [(ngModel)]="selectedProductsToDisplay"
+        (onSelect)="onProductNamesToDisplayChange()"
+        (onSelectAll)="onSelectAll()"
+    >
+    </ng-multiselect-dropdown>
+</div>

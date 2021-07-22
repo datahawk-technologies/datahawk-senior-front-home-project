@@ -21,7 +21,6 @@ export class RankViewerDatepickerComponent implements OnInit {
 
   ngOnInit(): void {
     const inputSelector = 'input[name="dh-datepicker-input"]';
-    const datepicker = document.querySelector(inputSelector) as HTMLInputElement;
     $(inputSelector).daterangepicker({
         startDate: this.selectedBegin,
         endDate: this.selectedEnd,

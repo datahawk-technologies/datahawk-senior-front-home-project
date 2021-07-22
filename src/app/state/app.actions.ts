@@ -1,5 +1,6 @@
 import { DatasetId } from '../models/dataset-id.enum';
 import {Moment} from 'moment';
+import {MultiselectProductOption} from './app.state';
 
 export namespace AppActions {
   export class SelectDataset {
@@ -12,6 +13,10 @@ export namespace AppActions {
   }
   export class SelectEndDate {
     static readonly type = '[App] select end date';
-    constructor(public endDate: Moment) { }
+    constructor(public endDate: Moment) {}
+  }
+  export class SelectProductNamesToDisplay {
+    static readonly type = '[App] select product names to display';
+    constructor(public productNamesToDisplay: MultiselectProductOption[]) { }
   }
 }

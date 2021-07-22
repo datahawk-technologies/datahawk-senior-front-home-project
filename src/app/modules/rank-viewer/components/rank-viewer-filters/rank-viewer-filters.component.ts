@@ -11,12 +11,8 @@ import {Moment} from 'moment';
 export class RankViewerFiltersComponent implements OnInit {
   @Input() selectedId: DatasetId | null = null;
   @Input() datasetIds: DatasetId[] | null = [];
-  @Input() selectedBegin!: Moment | null;
-  @Input() selectedEnd!: Moment | null;
 
   @Output() datasetSelect: EventEmitter<DatasetId> = new EventEmitter<DatasetId>();
-  @Output() beginChange: EventEmitter<Moment> = new EventEmitter<Moment>();
-  @Output() endChange: EventEmitter<Moment> = new EventEmitter<Moment>();
 
   ngOnInit(): void {
   }
@@ -24,13 +20,4 @@ export class RankViewerFiltersComponent implements OnInit {
   onDatasetClick(datasetId: string) {
     this.datasetSelect.emit(datasetId as DatasetId);
   }
-
-  onBeginChange(begin: Moment) {
-    this.beginChange.emit(begin);
-  }
-
-  onEndChange(begin: Moment) {
-    this.endChange.emit(begin);
-  }
-
 }

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {CHART_OPTIONS} from '../../models/chart-options';
 import {Select, Store} from '@ngxs/store';
-import {AppState} from '../../state/app.state';
+import {AppState, initialAppStateDataset, MultiselectProductOption} from '../../state/app.state';
 import {Observable} from 'rxjs';
 import {ProductRank} from '../../models/product-rank.type';
 import {ChartOptions} from 'chart.js';
@@ -17,10 +17,12 @@ import {Moment} from 'moment';
 export class RankViewerComponent implements OnInit {
 
   // setting "!" after attribut declaration tell to typescript that we wont init that property
+  @Select(AppState.selectedMultiselectProductOptions) selectedMultiselectProductOptions$!: Observable<MultiselectProductOption[]>;
   @Select(AppState.selectedDataset) selectedDataset$!: Observable<ProductRank[]>;
   @Select(AppState.selectedDatasetId) selectedDatasetId$!: Observable<DatasetId>;
   @Select(AppState.selectedBeginDate) selectedBeginDate$!: Observable<Moment>;
   @Select(AppState.selectedEndDate) selectedEndDate$!: Observable<Moment>;
+  @Select(AppState.selectedProductNames) selectedProductNames$!: Observable<MultiselectProductOption[]>;
 
   chartsOptions: ChartOptions = CHART_OPTIONS;
   datasetIds: DatasetId[] = Object.values(DatasetId);
@@ -42,4 +44,7 @@ export class RankViewerComponent implements OnInit {
     this.store.dispatch(new AppActions.SelectEndDate(end));
   }
 
+  onProductToDisplaySelection(productNames: MultiselectProductOption[]) {
+    this.store.dispatch(new AppActions.SelectProductNamesToDisplay(productNames));
+  }
 }

@@ -1,12 +1,25 @@
-<dh-rank-viewer-filters
-    [selectedBegin]="(selectedBeginDate$ | async)"
-    [selectedEnd]="(selectedEndDate$ | async)"
-    [datasetIds]="datasetIds"
-    [selectedId]="(selectedDatasetId$ | async)"
-    (datasetSelect)="onDatasetSelection($event)"
-    (beginChange)="onBeginSelection($event)"
-    (endChange)="onEndSelection($event)"
-></dh-rank-viewer-filters>
+<div class="controls">
+    <!-- product selection-->
+    <dh-rank-viewer-products-selection
+        [selectedProductsToDisplay]="(selectedProductNames$ | async)"
+        [selectedId]="(selectedDatasetId$ | async)"
+        [multiselectProductNamesOptions]="(selectedMultiselectProductOptions$ | async)"
+        (productNamesToDisplayChange)="onProductToDisplaySelection($event)"
+    ></dh-rank-viewer-products-selection>
+    <!-- datepicker -->
+    <dh-rank-viewer-datepicker
+        [selectedBegin]="(selectedBeginDate$ | async)"
+        [selectedEnd]="(selectedEndDate$ | async)"
+        (beginChange)="onBeginSelection($event)"
+        (endChange)="onEndSelection($event)"
+    ></dh-rank-viewer-datepicker>
+    <!-- categories -->
+    <dh-rank-viewer-filters
+        [datasetIds]="datasetIds"
+        [selectedId]="(selectedDatasetId$ | async)"
+        (datasetSelect)="onDatasetSelection($event)"
+    ></dh-rank-viewer-filters>
+</div>
 <dh-rank-viewer-chart
     [chartOptions]="chartsOptions"
     [selectedDataset]="(selectedDataset$ | async)"
